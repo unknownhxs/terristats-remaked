@@ -68,15 +68,19 @@ async function registerCommands() {
   const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN);
   const body = client.commands.map((cmd) => cmd.data.toJSON());
 
-  // A GUILD_ID (optional) gives instant registration, which is handy during
-  // development. Without it we register globally (can take up to an hour).
+  // GUILD_ID is optional. When set it gives instant, guild-scoped registration
+  // (handy for development). When it is absent — the default — commands are
+  // registered globally, which is the intended production behaviour and can
+  // take up to ~1 hour to propagate across Discord.
   if (process.env.GUILD_ID) {
     await rest.put(
       Routes.applicationGuildCommands(client.user.id, process.env.GUILD_ID),
       { body },
     );
+    console.log(`Registered ${body.length} commands to guild ${process.env.GUILD_ID}`);
   } else {
     await rest.put(Routes.applicationCommands(client.user.id), { body });
+    console.log(`Registered ${body.length} commands globally (may take up to 1 hour to appear)`);
   }
   return body.length;
 }
