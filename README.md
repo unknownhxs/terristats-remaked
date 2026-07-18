@@ -41,26 +41,46 @@ data is scraped from `territorial.io/clan-results` every 60 seconds and stored i
 | `/milestones` | clan milestone badges |
 | `/contest_streak` | clan contest win streaks |
 | `/underdog` | high contest rate, low total wins |
+| `/help` | full command list |
+| `/ping` | check bot latency |
 
 ## self hosting
 
 1. clone the repo
-2. create a `.env` file with your tokens (see below)
-3. install dependencies: `pip install -r requirements.txt` for linux users use `pip install -r requirements.txt --break-system-packages`
-4. run: `python main.py` for linux users run `python3 main.py`
+2. create a `.env` file with your tokens (see `.env.example`)
+3. install dependencies: `npm install`
+4. run: `npm start` (or `npm run dev` for auto-restart on file changes)
 
 **.env**
 ```
 DISCORD_TOKEN=your_token
-MONGODB_URI=your_mongodb_uri
+MONGO_URI=mongodb://localhost:27017/
 ```
+
+Set `GUILD_ID` in `.env` to register slash commands instantly in one guild
+during development; otherwise commands are registered globally (which can take
+up to an hour to appear).
 
 ## stack
 
-- discord.py 2.3.2
-- mongodb + motor (async)
-- aiohttp for scraping
+- [discord.js](https://discord.js.org) v14
+- mongodb (official `mongodb` driver)
+- Node.js built-in `fetch` for scraping
+- Node.js built-in `http` for the health-check web server
 - hosted on railway (preferred)
+
+## project structure
+
+```
+index.js          # entry point: loads commands, connects, registers, runs
+database.js       # mongodb connection + index setup
+scraper.js        # background scraper (territorial.io -> mongodb)
+webServer.js      # tiny health-check http server
+utils.js          # shared scoring/query helpers
+pagination.js     # reusable button pagination for leaderboards
+commands/general  # /help, /ping
+commands/stats    # every stats slash command
+```
 
 ---
 
